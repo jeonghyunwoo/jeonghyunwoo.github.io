@@ -1,11 +1,11 @@
-# How to use `python::scikit-learn` as `caret package` of R
-### pre-requisite
+## How to use `python::scikit-learn` as `caret package` of R
+### pre-requisites
  - python
  - scikit-learn package
  * anaconda make to install python and its friends easy
 I'll make examples using `recipes::credit_data`.
 `recipes` are so very cool package for preprocessing.
-### package loading
+### packages loading
 I use `pacman` for easy loading of required packages.
 ```
 library(pacman) # needed for 'p_load'
@@ -51,24 +51,24 @@ y_test <-ifelse(te$status=='bad',1,0) %>% as.array
 ens <- import('sklearn.ensemble')
 rf <- ens$RandomForestClassifier(n_estimators=100L, n_jobs=-1L)
 rf$fit(x_train, y_train)
-# performance
+# test score
 rf$score(x_test, y_test)
+# predict
+pred <-rf$predict(x_test)
+prob <-rf$predict_proba(x_test)
 ```
 ### Two model fitting at once
 ```
 sk <- import('sklearn')
-two_model <-list(rf = sk$ensemble$RandomForestClassifier,
+two_model <-list(rf  = sk$ensemble$RandomForestClassifier,
                  svm = sk$svm$SVC) %>%
             map(~.$fit(x_train,y_train))
+# predict
+fit_df <- tibble(algo  = names(two_model), 
+                 model = two_model) %>%
+          mutate(pred = map(model, ~.$predict(x_test) %>% as.vector) )
 ```
 ------------------------------
-You can use the [editor on GitHub](https://github.com/jeonghyunwoo/jeonghyunwoo.github.io/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
-
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
 
 ```markdown
 Syntax highlighted code block
@@ -87,13 +87,3 @@ Syntax highlighted code block
 
 [Link](url) and ![Image](src)
 ```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/jeonghyunwoo/jeonghyunwoo.github.io/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
