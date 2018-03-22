@@ -71,7 +71,7 @@ fit_df <- tibble(algo  = names(many_model),
                  model = many_model) %>%
           mutate(pred = map(model, ~.$predict(x_test) %>% as.vector) )
 ```
-### 6.skret, sklearn wrapper (as caret)
+### 6.'skret', sklearn wrapper (as caret)
 ```
 sk <- import('sklearn')
 # NOTE that each classifier doesn't have bracket`()`
