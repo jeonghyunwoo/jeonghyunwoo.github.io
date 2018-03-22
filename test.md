@@ -1,5 +1,50 @@
 ## How to use `python::scikit-learn` as `caret package` of R
+# pre-requisite
+ - python
+ - scikit-learn package
+ * anaconda make to install python and its friends easy
+I'll make examples using `recipes::credit_data`.
+`recipes` are so very cool package for preprocessing.
+# package loading
+I use `pacman` for easy loading of required packages.
+```
+library(pacman) # needed for 'p_load'
+p_load(plyr,tidyverse,recipes,reticulate,resample)
+```
+# data loading and preprocess
+```
+data(credit_data)
+df <- credit_data %>% rename_all(tolower)
+# missing values check
+sapply(df,function(x) sum(is.na(x)))
 
+# preprocessing
+df <- recipe(status~., data=df) %>% 
+  step_meanimpute(all_numeric()) %>% 
+  step_modeimpute(all_nominal()) %>% 
+  step_center(all_numeric()) %>% 
+  step_scale(all_numeric()) %>% 
+  step_dummy(all_nominal(),-status) %>% 
+  step_zv(all_predictors()) %>% 
+  prep(training=df,retain=TRUE) %>% 
+  juice()
+ 
+ # missing values check
+ sapply(df,function(x) sum(is.na(x)))
+ ```
+ # data spliting
+ ```
+set.seed(2474) # for repex
+splt <- initial_split(df,prop=0.7) # rsample
+tr <- training(splt)
+te <- testing(splt)
+```
+# scikit-learn models loading
+```
+skl <- import('sklearn')
+models <-function(
+
+------------------------------
 You can use the [editor on GitHub](https://github.com/jeonghyunwoo/jeonghyunwoo.github.io/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
