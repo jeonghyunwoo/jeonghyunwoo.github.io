@@ -1,17 +1,17 @@
-## How to use `python::scikit-learn` as `caret package` of R
-# pre-requisite
+# How to use `python::scikit-learn` as `caret package` of R
+### pre-requisite
  - python
  - scikit-learn package
  * anaconda make to install python and its friends easy
 I'll make examples using `recipes::credit_data`.
 `recipes` are so very cool package for preprocessing.
-# package loading
+### package loading
 I use `pacman` for easy loading of required packages.
 ```
 library(pacman) # needed for 'p_load'
 p_load(plyr,tidyverse,recipes,reticulate,resample)
 ```
-# data loading and preprocess
+### data loading and preprocess
 ```
 data(credit_data)
 df <- credit_data %>% rename_all(tolower)
@@ -32,18 +32,34 @@ df <- recipe(status~., data=df) %>%
  # missing values check
  sapply(df,function(x) sum(is.na(x)))
  ```
- # data spliting
+ ### data spliting
  ```
 set.seed(2474) # for repex
 splt <- initial_split(df,prop=0.7) # rsample
 tr <- training(splt)
 te <- testing(splt)
-```
-# scikit-learn models loading
-```
-skl <- import('sklearn')
-models <-function(
 
+# for sklearn fitting
+pd <-import('pandas')
+x_train <-pd$DataFrame(dict(select(tr, -status)))
+y_train <-ifelse(tr$status=='bad',1,0) %>% as.array
+x_test <-pd$DataFrame(dict(select(te, -status)))
+y_test <-ifelse(te$status=='bad',1,0) %>% as.array
+```
+### warm up: One model fitting (using scikit-learn)
+```
+ens <- import('sklearn.ensemble')
+rf <- ens$RandomForestClassifier(n_estimators=100L, n_jobs=-1L)
+rf$fit(x_train, y_train)
+# performance
+rf$score(x_test, y_test)
+```
+### Two model fitting at once
+```
+sk <- import('sklearn')
+two_model <-list(rf = sk$ensemble$RandomForestClassifier,
+                 svm = sk$svm$SVC) %>%
+            map(~.$fit(x_train,y_train))
 ------------------------------
 You can use the [editor on GitHub](https://github.com/jeonghyunwoo/jeonghyunwoo.github.io/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
 
