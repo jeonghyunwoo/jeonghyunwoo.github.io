@@ -1,17 +1,17 @@
 ## How to use `python::scikit-learn` as `caret package` of R
-### pre-requisites
+### 0.pre-requisites
  - python
  - scikit-learn package
- * anaconda make to install python and its friends easy
-I'll make examples using `recipes::credit_data`.
+ * anaconda make to install python and its friends easy  
+I'll make examples using `recipes::credit_data`.  
 `recipes` are so very cool package for preprocessing.
-### packages loading
+### 1.packages loading
 I use `pacman` for easy loading of required packages.
 ```
 library(pacman) # needed for 'p_load'
 p_load(plyr,tidyverse,recipes,reticulate,resample)
 ```
-### data loading and preprocess
+### 2.data loading and preprocess
 ```
 data(credit_data)
 df <- credit_data %>% rename_all(tolower)
@@ -32,7 +32,7 @@ df <- recipe(status~., data=df) %>%
  # missing values check
  sapply(df,function(x) sum(is.na(x)))
  ```
- ### data spliting
+ ### 3.data spliting
  ```
 set.seed(2474) # for repex
 splt <- initial_split(df,prop=0.7) # rsample
@@ -46,7 +46,7 @@ y_train <-ifelse(tr$status=='bad',1,0) %>% as.array
 x_test <-pd$DataFrame(dict(select(te, -status)))
 y_test <-ifelse(te$status=='bad',1,0) %>% as.array
 ```
-### warm up: One model fitting (using scikit-learn)
+### 4.warm up: One model fitting (using scikit-learn)
 ```
 ens <- import('sklearn.ensemble')
 rf <- ens$RandomForestClassifier(n_estimators=100L, n_jobs=-1L)
@@ -57,15 +57,45 @@ rf$score(x_test, y_test)
 pred <-rf$predict(x_test)
 prob <-rf$predict_proba(x_test)
 ```
-### Two model fitting at once
+### 5.Many models fitting at once
 ```
 sk <- import('sklearn')
-two_model <-list(rf  = sk$ensemble$RandomForestClassifier,
-                 svm = sk$svm$SVC) %>%
+many_model <-list(rf  = sk$ensemble$RandomForestClassifier(),
+                 gbm = sk$ensemble$GradientBoostingClassifier(),
+                 sgd = sk$linear_model$SGDClassifier(),
+                 svm = sk$svm$SVC()) %>%
             map(~.$fit(x_train,y_train))
 # predict
-fit_df <- tibble(algo  = names(two_model), 
-                 model = two_model) %>%
+fit_df <- tibble(algo  = names(many_model), 
+                 model = many_model) %>%
+          mutate(pred = map(model, ~.$predict(x_test) %>% as.vector) )
+```
+### 6.skret, sklearn wrapper (as caret)
+```
+sk <- import('sklearn')
+# NOTE that each classifier doesn't have bracket`()`
+skret <- function(method, ...) {
+         models = list(rf  = sk$ensemble$RandomForestClassifier,
+                       gbm = sk$ensemble$GradientBoostingClassifier,
+                       sgd = sk$linear_model$SGDClassifier,
+                       svm = sk$svm$SVC)
+         return(models[[method]](...))
+         }
+rf  = skret('rf',n_estimators=30L, n_jobs=-1L) # random forest
+gbm = skret('gbm',max_depth=4L,n_estimators=100L) # gbm
+sgd = skret('sgd',warm_start=TRUE) # sgd
+svm = skret('svm') # svm
+```
+### 7.Many models fitting with 'skret' at once
+```
+many_model1 <-list(rf  = skret('rf'),
+                   gbm = skret('gbm'),
+                   sgd = skret('sgd'),
+                   svm = skret('svm')) %>%
+              map(~.$fit(x_train,y_train))
+# predict
+fit_df <- tibble(algo  = names(many_model1), 
+                 model = many_model1) %>%
           mutate(pred = map(model, ~.$predict(x_test) %>% as.vector) )
 ```
 ------------------------------
