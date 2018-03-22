@@ -103,7 +103,9 @@ fit_df <- tibble(algo  = names(many_model1),
                  model = many_model1) %>%
           mutate(pred = map(model, ~.$predict(x_test) %>% as.vector) )
 ```
+
 ------------------------------
+for my reference...
 
 ```markdown
 Syntax highlighted code block
