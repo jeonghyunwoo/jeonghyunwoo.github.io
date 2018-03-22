@@ -3,7 +3,7 @@ This is my first blog post.: )
 ### 0. prerequisites
  - python
  - scikit-learn package
- * anaconda make to install python and its friends easy.    
+  * anaconda make to install python and its friends easy.    
 I'll make examples using `recipes::credit_data`.  
 `recipes` are so very cool package for preprocessing.
 ### 1. packages loading
