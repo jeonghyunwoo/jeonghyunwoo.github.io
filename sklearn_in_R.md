@@ -1,6 +1,6 @@
 ## How to use `python::scikit-learn` as `caret package` of R
 This is my first blog post.: )  
-### 0. pre-requisites
+### 0. prerequisites
  - python
  - scikit-learn package
  * anaconda make to install python and its friends easy.    
