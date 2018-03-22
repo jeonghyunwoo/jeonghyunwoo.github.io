@@ -60,6 +60,7 @@ sk <- import('sklearn')
 two_model <-list(rf = sk$ensemble$RandomForestClassifier,
                  svm = sk$svm$SVC) %>%
             map(~.$fit(x_train,y_train))
+```
 ------------------------------
 You can use the [editor on GitHub](https://github.com/jeonghyunwoo/jeonghyunwoo.github.io/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
 
