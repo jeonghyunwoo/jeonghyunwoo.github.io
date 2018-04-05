@@ -1,5 +1,6 @@
 ## Collaboration between R and Python for ML with `reticulate`
-This is my first blog post.: )  
+This is a frame for my first blog post.  
+
 ### 0. prerequisites
  - python
  - scikit-learn package
