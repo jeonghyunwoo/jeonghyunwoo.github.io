@@ -1,4 +1,4 @@
-## How to use `python::scikit-learn` as `caret package` of R
+## Collaboration between R and Python for ML
 This is my first blog post.: )  
 ### 0. prerequisites
  - python
