@@ -1,4 +1,4 @@
-## Collaboration between R and Python for ML
+## Collaboration between R and Python for ML with `reticulate`
 This is my first blog post.: )  
 ### 0. prerequisites
  - python
@@ -16,7 +16,7 @@ p_load(plyr,tidyverse,recipes,reticulate,rsample)
 # reticulate is needed for using python in R
 # rsample is needed for train, test split
 ```
-### 2. data loading and preprocess
+### 2. data loading and preprocess (recipes)
 ```
 data(credit_data)
 df <- credit_data %>% rename_all(tolower)
@@ -37,7 +37,7 @@ df <- recipe(status~., data=df) %>%
  # missing values check
  sapply(df,function(x) sum(is.na(x)))
  ```
- ### 3. data spliting
+ ### 3. data spliting (rsample)
  ```
 set.seed(2474) # for repex
 splt <- initial_split(df,prop=0.7) # rsample
@@ -51,7 +51,7 @@ y_train <-ifelse(tr$status=='bad',1,0) %>% as.array
 x_test <-pd$DataFrame(dict(select(te, -status)))
 y_test <-ifelse(te$status=='bad',1,0) %>% as.array
 ```
-### 4. warm up: One model fitting (using scikit-learn)
+### 4. warm up: One model fitting (using scikit-learn with reticulate)
 ```
 ens <- import('sklearn.ensemble')
 rf <- ens$RandomForestClassifier(n_estimators=100L, n_jobs=-1L)
